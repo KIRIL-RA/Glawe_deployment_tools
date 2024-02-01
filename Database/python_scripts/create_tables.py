@@ -27,9 +27,9 @@ def create_tables(dotenv_path):
                         id serial primary key ,
                         full_name varchar(255) not null,
                         user_role varchar(255) not null,
-                        user_login varchar(255) not null unique,
+                        user_login varchar(255) not null,
                         user_password varchar(255) not null,
-                        production_id serial references production on delete cascade
+                        production_id serial references production(id) on delete cascade
                     );
 
                     create table if not exists target_values(
@@ -133,6 +133,14 @@ def create_tables(dotenv_path):
                         machine_state varchar(255) not null,
                         tablet_id varchar(255) not null
                     );
+
+
+                    create table if not exists machine_workplace(
+                        id serial primary key,
+                        machine_workplace_name varchar(255) not null,
+                        machine_id serial references machines
+                    );       
+                               
 
                     create table if not exists sensors(
                         id serial primary key,

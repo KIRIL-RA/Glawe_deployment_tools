@@ -36,7 +36,8 @@ def delete_all_tables(dotenv_path):
                                 generated_reports,
                                 shop,
                                 machine_metrics,
-                                alerts;
+                                alerts,
+                               machine_workplace;
                 """)
                 print("db cleared)")
 
