@@ -107,7 +107,8 @@
                         id serial primary key,
                         machine_type_id serial references machine_types,
                         units_of_measurment varchar(255) not null,
-                        position integer not null
+                        port integer not null,
+                        sensor_type_name varchar(255) not null
                     );
 
                     create table if not exists machines(
@@ -118,6 +119,15 @@
                         tablet_id varchar(255) not null
                     );
 
+                    create table if not exists sensors(
+                        id serial primary key,
+                        machine_id serial references machines,
+                        sensor_name varchar(255) not null,
+                        sensor_port integer not null,
+                        sensor_value varchar(255) not null,
+                        sensor_type_id serial references sensors_by_types
+                    );
+
 
                     create table if not exists machine_workplace(
                         id serial primary key,
@@ -126,14 +136,7 @@
                     );       
                                
 
-                    create table if not exists sensors(
-                        id serial primary key,
-                        machine_id serial references machines,
-                        sensor_name varchar(255) not null,
-                        position integer not null,
-                        sensor_value varchar(255) not null,
-                        sensor_type_name varchar(255) not null
-                    );
+                    
 
                     create table if not exists worker_to_machine(
                         id serial primary key,
@@ -152,7 +155,7 @@
 
                     create table if not exists machine_metrics(
                         id serial primary key,
-                        machine_id serial references worker,
+                        machine_id serial references machines,
                         machine_metric_name varchar(255) not null,
                         machine_metric_type varchar(255) not null,
                         machine_units_of_measurment varchar(255) not null,

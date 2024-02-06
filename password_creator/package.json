@@ -1,0 +1,14 @@
+{
+  "name": "password_creator",
+  "version": "1.0.0",
+  "description": "to create passwords for db",
+  "main": "password_creator.js",
+  "scripts": {
+    "hp": "node password_hasher"
+  },
+  "author": "Pachv",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1"
+  }
+}

@@ -17,7 +17,7 @@ def create_tables(dotenv_path):
                               dbname=os.getenv("db_name")) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                    create table if not exists production(
+                                        create table if not exists production(
                         id serial primary key ,
                         production_name varchar(255) not null
                     );
@@ -123,7 +123,8 @@ def create_tables(dotenv_path):
                         id serial primary key,
                         machine_type_id serial references machine_types,
                         units_of_measurment varchar(255) not null,
-                        position integer not null
+                        port integer not null,
+                        sensor_type_name varchar(255) not null
                     );
 
                     create table if not exists machines(
@@ -134,6 +135,15 @@ def create_tables(dotenv_path):
                         tablet_id varchar(255) not null
                     );
 
+                    create table if not exists sensors(
+                        id serial primary key,
+                        machine_id serial references machines,
+                        sensor_name varchar(255) not null,
+                        sensor_port integer not null,
+                        sensor_value varchar(255) not null,
+                        sensor_type_id serial references sensors_by_types
+                    );
+
 
                     create table if not exists machine_workplace(
                         id serial primary key,
@@ -142,14 +152,7 @@ def create_tables(dotenv_path):
                     );       
                                
 
-                    create table if not exists sensors(
-                        id serial primary key,
-                        machine_id serial references machines,
-                        sensor_name varchar(255) not null,
-                        position integer not null,
-                        sensor_value varchar(255) not null,
-                        sensor_type_name varchar(255) not null
-                    );
+                    
 
                     create table if not exists worker_to_machine(
                         id serial primary key,
@@ -168,7 +171,7 @@ def create_tables(dotenv_path):
 
                     create table if not exists machine_metrics(
                         id serial primary key,
-                        machine_id serial references worker,
+                        machine_id serial references machines,
                         machine_metric_name varchar(255) not null,
                         machine_metric_type varchar(255) not null,
                         machine_units_of_measurment varchar(255) not null,
@@ -188,7 +191,7 @@ def create_tables(dotenv_path):
 
                     );
                 """)
-            print("db created")
+            print("db created)")
             
                 
     except (psycopg2.DatabaseError, Exception) as error:
