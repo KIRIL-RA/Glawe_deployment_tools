@@ -20,4 +20,6 @@
                                 shop,
                                 machine_metrics,
                                 alerts,
-                               machine_workplace;
+                               machine_workplace,
+                               admin_sessions,
+                               worker_sessions;
