@@ -17,180 +17,212 @@ def create_tables(dotenv_path):
                               dbname=os.getenv("db_name")) as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                                        create table if not exists production(
-                        id serial primary key ,
-                        production_name varchar(255) not null
-                    );
+SELECT 1+1 AS result;
 
 
-                    create table if not exists user_admin(
-                        id serial primary key ,
-                        full_name varchar(255) not null,
-                        user_role varchar(255) not null,
-                        user_login varchar(255) not null,
-                        user_password varchar(255) not null,
-                        production_id serial references production(id) on delete cascade
-                    );
-
-                    create table if not exists target_values(
-                        id serial primary key ,
-                        metric_type varchar(255) not null,
-                        target_value varchar(255) not null,
-                        production_id serial references production on delete cascade
-                    );
-
-                    create table if not exists production_total(
-                        id serial primary key ,
-                        production_id serial references production on delete cascade,
-                        production_total_type varchar(255) not null,
-                        production_total_value varchar(255) not null,
-                        time_start timestamp not null,
-                        time_end timestamp not null
-                    );
-
-                    create table if not exists report_models(
-                        id serial primary key ,
-                        report_model_name varchar(255) not null,
-                        production_id serial references production on delete cascade
-                    );
-
-                    create table if not exists report_blocks(
-                        id serial primary key ,
-                        report_block_type varchar(255) not null,
-                        report_block_name varchar(255) not null,
-                        report_model_id serial references report_models on delete cascade,
-                        report_block_source varchar(255) not null,
-                        metric_type varchar(255) not null
-                    );
-
-                    create table if not exists generated_reports(
-                        id serial primary key ,
-                        report_name varchar(255) not null,
-                        from_date timestamp not null,
-                        to_date timestamp not null,
-                        generated_report_model_id serial references report_models on delete cascade
-                    );
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'production';
 
 
-                    create table if not exists shop(
-                        id serial primary key ,
-                        production_id serial references production on delete cascade,
-                        shop_name varchar(255) not null  
-                    );
+CREATE TABLE IF NOT EXISTS "production" ("id"  SERIAL , "production_name" VARCHAR(255), PRIMARY KEY ("id"));;
 
 
-                    create table if not exists shop_total(
-                        id serial primary key ,
-                        shop_id serial references shop on delete cascade,
-                        shop_total_type varchar(255) not null,  
-                        production_id serial references production on delete cascade,
-                        shop_name varchar(255) not null 
-                    );
-
-                    create table if not exists worker(
-                        id serial primary key,
-                        full_name varchar(255) not null,
-                        phone_number varchar(255) not null, 
-                        position varchar(255) not null,
-                        worker_login varchar(255) not null,
-                        worker_password varchar(255) not null
-                    );
-
-                    create table if not exists worker_actions(
-                        id serial primary key,
-                        worker_id serial references worker,
-                        action_class varchar(255) not null,
-                        action_status varchar(255) not null,
-                        action_time timestamp not null
-                    );
-
-                    create table if not exists worker_metrics(
-                        id serial primary key,
-                        worker_id serial references worker,
-                        worker_metric_name varchar(255) not null,
-                        worker_units_of_measurment varchar(255) not null,
-                        worker_metric_value varchar(255) not null,
-                        time_start timestamp not null,
-                        time_end timestamp not null
-                    );
-
-                    create table if not exists machine_types (
-                        id serial primary key,
-                        type_name varchar(255) not null
-                    );
-
-                    create table if not exists sensors_by_types (
-                        id serial primary key,
-                        machine_type_id serial references machine_types,
-                        units_of_measurment varchar(255) not null,
-                        port integer not null,
-                        sensor_type_name varchar(255) not null
-                    );
-
-                    create table if not exists machines(
-                        id serial primary key,
-                        machine_name varchar(255) not null,
-                        machine_type_id serial references machine_types,
-                        machine_state varchar(255) not null,
-                        tablet_id varchar(255) not null
-                    );
-
-                    create table if not exists sensors(
-                        id serial primary key,
-                        machine_id serial references machines,
-                        sensor_name varchar(255) not null,
-                        sensor_port integer not null,
-                        sensor_value varchar(255) not null,
-                        sensor_type_id serial references sensors_by_types
-                    );
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'production' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
 
 
-                    create table if not exists machine_workplace(
-                        id serial primary key,
-                        machine_workplace_name varchar(255) not null,
-                        machine_id serial references machines
-                    );       
-                               
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'user_admin';
 
-                    
 
-                    create table if not exists worker_to_machine(
-                        id serial primary key,
-                        shop_id serial references shop,
-                        worker_id serial references worker,
-                        machine_id serial references machines 
-                    );
+CREATE TABLE IF NOT EXISTS "user_admin" ("id"  SERIAL , "full_name" VARCHAR(255), "user_role" VARCHAR(255), "user_login" VARCHAR(255), "user_password" VARCHAR(255), "production_id" INTEGER REFERENCES "production" ("id"), PRIMARY KEY ("id"));;
 
-                    create table if not exists machine_actions(
-                        id serial primary key,
-                        machine_id serial references worker,
-                        action_class varchar(255) not null,
-                        action_status varchar(255) not null,
-                        action_time timestamp not null
-                    );
 
-                    create table if not exists machine_metrics(
-                        id serial primary key,
-                        machine_id serial references machines,
-                        machine_metric_name varchar(255) not null,
-                        machine_metric_type varchar(255) not null,
-                        machine_units_of_measurment varchar(255) not null,
-                        machine_metric_value varchar(255) not null,
-                        time_start timestamp not null,
-                        time_end timestamp not null
-                    );
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'user_admin' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
 
-                    create table if not exists alerts(
-                        id serial primary key,
-                        alert_message varchar(255) not null,
-                        production_id serial references production,
-                        machine_id serial references machines,
-                        machine_action_id serial references machine_actions,
-                        is_closed boolean not null,
-                        is_read boolean not null
 
-                    );
-                """)
+
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'production_total';CREATE TABLE IF NOT EXISTS "production_total" ("id"  SERIAL , "production_total_type" VARCHAR(255), "production_total_value" VARCHAR(255), "time_start" TIMESTAMP WITH TIME ZONE, "time_end" TIMESTAMP WITH TIME ZONE, "production_id" INTEGER REFERENCES "production" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'production_total' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'report_models';
+
+
+CREATE TABLE IF NOT EXISTS "report_models" ("id"  SERIAL , "report_model_name" VARCHAR(255), "production_id" INTEGER REFERENCES "production" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'report_models' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'report_blocks';
+
+
+CREATE TABLE IF NOT EXISTS "report_blocks" ("id"  SERIAL , "report_block_type" VARCHAR(255), "report_block_name" VARCHAR(255), "report_block_source" VARCHAR(255), "metric_type" VARCHAR(255), "report_model_id" INTEGER REFERENCES "report_models" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'report_blocks' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'generated_reports';
+
+
+CREATE TABLE IF NOT EXISTS "generated_reports" ("id"  SERIAL , "report_name" VARCHAR(255), "from_date" TIMESTAMP WITH TIME ZONE, "to_date" TIMESTAMP WITH TIME ZONE, "generated_report_model_id" INTEGER REFERENCES "report_models" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'generated_reports' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'shop';
+
+
+
+
+
+CREATE TABLE IF NOT EXISTS "shop" ("id"  SERIAL , "shop_name" VARCHAR(255), "production_id" INTEGER REFERENCES "production" ("id"), PRIMARY KEY ("id"));;SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'shop' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'shop_total';
+
+
+CREATE TABLE IF NOT EXISTS "shop_total" ("id"  SERIAL , "shop_total_type" VARCHAR(255), "shop_name" VARCHAR(255), "shop_id" INTEGER REFERENCES "shop" ("id"), "production_id" INTEGER REFERENCES "production" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'shop_total' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'worker';
+
+
+CREATE TABLE IF NOT EXISTS "worker" ("id"  SERIAL , "full_name" VARCHAR(255), "phone_number" VARCHAR(255), "position" VARCHAR(255), "worker_login" VARCHAR(255), "worker_password" VARCHAR(255), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'worker' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'worker_actions';
+
+
+CREATE TABLE IF NOT EXISTS "worker_actions" ("id"  SERIAL , "action_class" VARCHAR(255), "action_status" VARCHAR(255), "action_time" TIMESTAMP WITH TIME ZONE, "worker_id" INTEGER REFERENCES "worker" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'worker_actions' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'worker_metrics';
+
+
+CREATE TABLE IF NOT EXISTS "worker_metrics" ("id"  SERIAL , "worker_metric_name" VARCHAR(255), "worker_units_of_measurment" VARCHAR(255), "worker_metric_value" VARCHAR(255), "time_start" TIMESTAMP WITH TIME ZONE, "time_end" TIMESTAMP WITH TIME ZONE, "worker_id" INTEGER REFERENCES "worker" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'worker_metrics' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'machine_types';
+
+
+CREATE TABLE IF NOT EXISTS "machine_types" ("id"  SERIAL , "type_name" VARCHAR(255), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'machine_types' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'sensors_by_types';
+
+
+CREATE TABLE IF NOT EXISTS "sensors_by_types" ("id"  SERIAL , "units_of_measurment" VARCHAR(255), "port" VARCHAR(255), "sensor_type_name" VARCHAR(255), "machine_type_id" INTEGER REFERENCES "machine_types" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'sensors_by_types' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'machines';
+
+
+CREATE TABLE IF NOT EXISTS "machines" ("id"  SERIAL , "machine_name" VARCHAR(255), "machine_state" VARCHAR(255), "tablet_id" VARCHAR(255), "machine_token" VARCHAR(255), "machine_type_id" INTEGER REFERENCES "machine_types" ("id"), PRIMARY KEY ("id"));;
+
+
+
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'machines' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'sensors';
+
+
+CREATE TABLE IF NOT EXISTS "sensors" ("id"  SERIAL , "sensor_name" VARCHAR(255), "sensor_port" VARCHAR(255), "sensor_value" VARCHAR(255), "machine_id" INTEGER REFERENCES "machines" ("id"), "sensor_type_id" INTEGER REFERENCES "sensors_by_types" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'sensors' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'machine_workplace';
+
+
+CREATE TABLE IF NOT EXISTS "machine_workplace" ("id"  SERIAL , "machine_workplace_name" VARCHAR(255), "machine_id" INTEGER REFERENCES "machines" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'machine_workplace' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'worker_to_machine';
+
+
+CREATE TABLE IF NOT EXISTS "worker_to_machine" ("id"  SERIAL , "shop_id" INTEGER REFERENCES "shop" ("id"), "worker_id" INTEGER REFERENCES "worker" ("id"), "machine_id" INTEGER REFERENCES "machines" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'worker_to_machine' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'machine_actions';
+
+
+CREATE TABLE IF NOT EXISTS "machine_actions" ("id"  SERIAL , "action_type" VARCHAR(255), "action_name" VARCHAR(255), "action_time" TIMESTAMP WITH TIME ZONE, "machine_id" INTEGER REFERENCES "machines" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'machine_actions' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'machine_metrics';
+
+
+CREATE TABLE IF NOT EXISTS "machine_metrics" ("id"  SERIAL , "machine_metric_name" VARCHAR(255), "machine_metric_type" VARCHAR(255), "machine_units_of_measurment" VARCHAR(255), "machine_metric_value" VARCHAR(255), "time_start" TIMESTAMP WITH TIME ZONE, "time_end" TIMESTAMP WITH TIME ZONE, "machine_id" INTEGER REFERENCES "machines" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'machine_metrics' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'target_values';
+
+
+CREATE TABLE IF NOT EXISTS "target_values" ("id"  SERIAL , "type_name" VARCHAR(255), "target_value" VARCHAR(255), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'target_values' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'alerts';
+
+
+CREATE TABLE IF NOT EXISTS "alerts" ("id"  SERIAL , "alert_message" VARCHAR(255), "is_closed" VARCHAR(255), "is_read" VARCHAR(255), "production_id" INTEGER REFERENCES "production" ("id"), "machine_id" INTEGER REFERENCES "machines" ("id"), "machine_action_id" INTEGER REFERENCES "machine_actions" ("id"), PRIMARY KEY ("id"));;
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'alerts' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'admin_sessions';
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'admin_sessions' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'worker_sessions';
+
+
+SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'worker_sessions' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;;
+
+
+
+""")
             print("db created)")
             
                 

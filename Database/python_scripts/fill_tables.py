@@ -68,7 +68,8 @@ data = {
         "table_name" : "machines",
         "machine_name" : "Laser machine",
         "machine_type_id" : "1",
-        "machine_state" : "working...",
+        "machine_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtYWNoaW5lSWQiOjEsInV0YyI6IjIwMjQtMDItMTJUMjI6MjA6MDUuODUwWiIsImlhdCI6MTcwNzc3NjQwNX0.6do29m9rD-55A-lJlWvkS-GKqRkZGTA_1u0shksbHsY",
+        "machine_state" : "plain",
         "tablet_id" : "aScasjcnzxc",
     },
 
@@ -249,7 +250,7 @@ data = {
         "table_name" : "machines",
         "machine_name" : "Freser",
         "machine_type_id" : "2",
-        "machine_state" : "working...",
+        "machine_state" : "plain",
         "tablet_id" : "aScasjcnzxc",
     },
 
